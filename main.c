@@ -4,37 +4,26 @@
 #include <unistd.h>
 #include <signal.h>
 
-//     void signalHandler(int signal)
-//     {   
-//     if (signal == SIGALRM)
-//     {
-//     printf("Ding!\n");
-//     wait(NULL);
-//     }
 
-// }
-float num1;
-    double num2;
+int year, month, day, hour, minute, second, countdownTime, pid;
+struct tm tid = {0};
 
-    int year, month, day, hour, minute, second;
-    struct tm tid = {0};
+char input;
+time_t t;   
+time_t alarms[10] = {0};
 
-    char input;
-    time_t t;   
-    int delay, pid;
-    time_t alarms[10] = {0};
 
 int main()
 {
     while (1){
     time(&t);
-    printf("\nWelcome to the alarm clock! It is currently: %s", ctime(&t));
+    printf("\nWelcome to the alarm clock! It is currently: %s and the pid is %d", ctime(&t), getpid());
     printf("Please enter 's' (schedule), 'l' (list), 'c' (cancel), 'x' (exit)");
-    scanf("%c", &input);
+    scanf(" %c", &input);
     
     if (input == 's'){
         printf("Schedule alarm at which date and time?");
-        scanf("%4d-%2d-%2d %2d:%2d:%2d", &year, &month, &day, &hour, &minute ,&second); // Inpput på format: yyyy-mm-dd hh:mm:ss
+        scanf("%4d-%2d-%2d %2d:%2d:%2d", &year, &month, &day, &hour, &minute ,&second); // Input på format: yyyy-mm-dd hh:mm:ss
         tid.tm_year = year - 1900;
         tid.tm_mon = month -1;
         tid.tm_mday = day;
@@ -45,22 +34,17 @@ int main()
         time_t convertedTime;
         convertedTime = mktime(&tid); // Gjør om input strengen til tidsformat
 
-        delay = difftime(convertedTime, t); // Tid fra nå til alarm
-        printf("Delay:  %d\n", delay);
+        countdownTime = difftime(convertedTime, t);
+        printf("Delay:  %d\n", countdownTime);
 
         pid = fork();               // Lager en barneprosess med fork() (duplikat av koden, i samme sted, så skal den termineres), det er denne som skal telle ned i bakrunnen
-        if (pid == 0)               // Barneprosessen
-        {
-            sleep(delay);
-            printf("Ding!, alarm went off");
+        if (pid == 0) {              // Kode som kun kjører dersom vi er i en barneprosess
+            sleep(countdownTime);
+            printf("Ding!, alarm for %d went off", getpid());
             exit(0);
-        } else{                     // Foreldreprosessen - MEN DEN FORTSETTER IKKE SOM DEN SKAL! Den burde restarte med en gang og spørre om ny input, nå venter den til barnet er ferdig
-            wait(NULL);                         //Se tempCodeRunnerFile.c for enklere men fungerende kode
-            printf("test: %d\n", pid);          //For testing, printer ut barneprosessens ID-nummer, så vet vi hvilken klokke som ringer
+        } else{                                         // Foreldreprosessen                      
+            printf("Nytt barn: %d\n", pid);             //For testing, printer ut barneprosessens ID-nummer, så vet vi hvilken klokke som ringer
         }
-        
-
-        printf("done!!\n"); //For testing bare
 
         }
 
@@ -76,9 +60,9 @@ int main()
     // else if (input == 'x'){
     //     printf("Goodbye!");
     // }
-    // else {
-    //     printf("Invalid command");
-    // }
+    else {
+        printf("Invalid command");
+    }
     
     /*printf("Enter a number: ");
     scanf("%f", &num1);
@@ -89,4 +73,5 @@ int main()
     printf("num2 = %lf", num2);*/
 
     }
+    exit(0);
 }
