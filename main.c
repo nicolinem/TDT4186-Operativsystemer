@@ -38,12 +38,12 @@ int main()
         printf("Delay:  %d\n", countdownTime);
 
         pid = fork();               // Lager en barneprosess med fork() (duplikat av koden, i samme sted, så skal den termineres), det er denne som skal telle ned i bakrunnen
-        if (pid == 0) {              // Kode som kun kjører dersom vi er i en barneprosess
+        if (pid == 0) {            // Kode som kun kjører dersom vi er i en barneprosess
             sleep(countdownTime);
-            printf("Ding!, alarm for %d went off", getpid());
+            printf("\nDing!, alarm for %d went off\n", getpid());
             exit(0);
         } else{                                         // Foreldreprosessen                      
-            printf("Nytt barn: %d\n", pid);             //For testing, printer ut barneprosessens ID-nummer, så vet vi hvilken klokke som ringer
+            printf("Alarm %d set for %d seconds", pid, countdownTime);             //For testing, printer ut barneprosessens ID-nummer, så vet vi hvilken klokke som ringer
         }
 
         }
