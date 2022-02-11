@@ -16,8 +16,10 @@
 float num1;
     double num2;
 
-    int year, month, day, hour, minute, second;
-    struct tm tid = {0};
+char input;
+time_t t;   
+time_t alarms[10] = {0};
+int pos, size, i;
 
     char input;
     time_t t;   
@@ -45,6 +47,7 @@ int main()
 
         time_t convertedTime;
         convertedTime = mktime(&tid); // Gjør om input strengen til tidsformat
+        alarms[0] = convertedTime;
 
         delay = difftime(convertedTime, t); // Tid fra nå til alarm
         printf("Delay:  %d\n", delay);
@@ -70,7 +73,13 @@ int main()
              printf("the time is %s", time(&alarms[i]));      
          }   
      }       
-     else if (input == 'c'){
+     
+    // else if (input == 'l'){
+    //    for (int i = 0; i < sizeof(alarms); i++) {
+    //         printf("the time is %s", time(&alarms[i]));      
+    //     }   
+    // }       
+   else if (input == 'c'){
         printf("Cancel which alarm?");
         scanf("%d", &pos);
         int size = sizeof(alarms)/sizeof(alarms[0]);
@@ -84,19 +93,20 @@ int main()
             }
 
             size--;
+
+            printf("\nElements of array after delete are:  ");
+            for(i=0; i<size; i++) {
+                printf("%d\t", alarms[i]);
+            }
         }
         return 0;
-      
-       
-     }
-
-
-     else if (input == 'x'){
-         printf("Goodbye!");
-     }
-     else {
-         printf("Invalid command");
-     }
+   }
+    else if (input == 'x'){
+        printf("Goodbye!");
+    }
+    else {
+        printf("Invalid command");
+    }
     
     /*printf("Enter a number: ");
     scanf("%f", &num1);
@@ -107,4 +117,5 @@ int main()
     printf("num2 = %lf", num2);*/
 
     }
+    exit(0); //denne kjører mange ganger
 }
