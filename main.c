@@ -11,6 +11,7 @@ struct tm tid = {0};
 char input;
 time_t t;   
 time_t alarms[10] = {0};
+int pos, size, i;
 
 
 int main()
@@ -33,6 +34,7 @@ int main()
 
         time_t convertedTime;
         convertedTime = mktime(&tid); // Gjør om input strengen til tidsformat
+        alarms[0] = convertedTime;
 
         countdownTime = difftime(convertedTime, t);
         printf("Delay:  %d\n", countdownTime);
@@ -54,12 +56,26 @@ int main()
     //         printf("the time is %s", time(&alarms[i]));      
     //     }   
     // }       
-    // else if (input == 'c'){
-       
-    // }
-    // else if (input == 'x'){
-    //     printf("Goodbye!");
-    // }
+   else if (input == 'c'){
+        printf("Cancel which alarm?");
+        scanf("%d", &pos);
+        int size = sizeof(alarms)/sizeof(alarms[0]);
+
+        if(pos < 0 || pos > size){
+            printf("Invalid position. Enter a position between  1 to %d", size);
+        }
+        else{
+            for(i=pos-1; i<pos-1; i++){
+                alarms[i] = alarms[i+1];
+            }
+
+            size--;
+        }
+        return 0;
+   }
+    else if (input == 'x'){
+        printf("Goodbye!");
+    }
     else {
         printf("Invalid command");
     }
@@ -73,5 +89,5 @@ int main()
     printf("num2 = %lf", num2);*/
 
     }
-    exit(0);
+    exit(0); //denne kjører mange ganger
 }
