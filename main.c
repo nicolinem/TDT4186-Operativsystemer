@@ -26,7 +26,6 @@ int year, month, day, hour, minute, second, countdownTime, pid;
 struct tm tid = {0};
 
 
-
     char input;
     time_t t;   
     int delay, pid;
@@ -66,6 +65,9 @@ int main()
                 alarms[i] = convertedTime;
                 break;
             }
+            else{
+                printf("No more available alarms!");
+            }
         } 
 
         countdownTime = difftime(convertedTime, t); // Tid fra nå til alarm
@@ -97,15 +99,12 @@ int main()
         } else{                                  //For testing, printer ut barneprosessens ID-nummer, så vet vi hvilken klokke som ringer
             printf("Alarm %d set for %d seconds\n", pid, countdownTime);          //For testing, printer ut barneprosessens ID-nummer, så vet vi hvilken klokke som ringer
         }
-        
-
-
-        }
+    }
 
     else if (input == 'l'){
         for(i = 0; i < sizeof(alarms)/sizeof(alarms[0]); i++) {
             if (alarms[i] != 0){
-                printf("Alarm %d at %s\n", i, ctime(&alarms[i]));
+                printf("Alarm %d at %s\n", i + 1, ctime(&alarms[i]));
             }
         } 
     } 
@@ -122,12 +121,6 @@ int main()
             int i;
             for(i = 0; i < 10 - 1; i++) alarms[i] = alarms[i + 1];
             kill(pid, SIGKILL);
-
-
-            printf("\nElements of array after delete are:  ");
-            for(i=0; i<size; i++) {
-                printf("%d\t", alarms[i]);
-            }
         }
    }
     else if (input == 'x'){
