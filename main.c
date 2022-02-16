@@ -98,16 +98,13 @@ int main()
         }
 
     else if (input == 'l'){
-        for (int i = 0; i < sizeof(alarms); i++) {
-             printf("the time is %s", time(&alarms[i]));      
-         }   
-     }       
-     
-    // else if (input == 'l'){
-    //    for (int i = 0; i < sizeof(alarms); i++) {
-    //         printf("the time is %s", time(&alarms[i]));      
-    //     }   
-    // }       
+        for(i = 0; i < sizeof(alarms)/sizeof(alarms[0]); i++) {
+            if (alarms[i] != 0){
+                printf("Alarm %d at %s\n", i, ctime(&alarms[i]));
+            }
+        } 
+    } 
+    
    else if (input == 'c'){
         printf("Cancel which alarm?");
         scanf("%d", &pos);
