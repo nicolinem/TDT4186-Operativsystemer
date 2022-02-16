@@ -3,6 +3,12 @@
 #include <time.h>
 #include <unistd.h>
 #include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <signal.h>
 
 //     void signalHandler(int signal)
 //     {   
@@ -26,6 +32,14 @@ struct tm tid = {0};
     int delay, pid;
     time_t alarms[10] = {0};
     int pos,size,i;
+    int childp;
+
+    volatile sig_atomic_t shutdown_flag = 1;
+
+    void cleanupRoutine(int signal_number)
+    {
+        shutdown_flag = 0;
+    }
 
 int main()
 {
@@ -56,6 +70,24 @@ int main()
         {
             sleep(countdownTime);
             printf("\nDing!, alarm for %d went off\n", getpid());
+
+            struct sigaction sigterm_action;
+            memset(&sigterm_action, 0, sizeof(sigterm_action));
+            sigterm_action.sa_handler = &cleanupRoutine;
+            sigterm_action.sa_flags = 0;
+            
+               // Mask other signals from interrupting SIGTERM handler
+            if (sigfillset(&sigterm_action.sa_mask) != 0)
+            {
+                perror("sigfillset");
+                exit(EXIT_FAILURE);
+            }
+            // Register SIGTERM handler
+            if (sigaction(SIGTERM, &sigterm_action, NULL) != 0)
+            {
+                perror("sigaction SIGTERM");
+                exit(EXIT_FAILURE);
+            }
             exit(0);
         } else{                                  //For testing, printer ut barneprosessens ID-nummer, så vet vi hvilken klokke som ringer
             printf("Alarm %d set for %d seconds\n", pid, countdownTime);          //For testing, printer ut barneprosessens ID-nummer, så vet vi hvilken klokke som ringer
@@ -85,11 +117,10 @@ int main()
             printf("Invalid position. Enter a position between  1 to %d", size);
         }
         else{
-            for(i=pos-1; i<pos-1; i++){
-                alarms[i] = alarms[i+1];
-            }
+            int i;
+            for(i = 0; i < 10 - 1; i++) alarms[i] = alarms[i + 1];
+            kill(pid, SIGKILL);
 
-            size--;
 
             printf("\nElements of array after delete are:  ");
             for(i=0; i<size; i++) {
