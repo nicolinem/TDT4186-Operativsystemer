@@ -61,7 +61,12 @@ int main()
 
         time_t convertedTime;
         convertedTime = mktime(&tid); // Gjør om input strengen til tidsformat
-        alarms[0] = convertedTime;
+          for(i = 0; i < 10; i++) {
+            if (alarms[i] == 0){
+                alarms[i] = convertedTime;
+                break;
+            }
+        } 
 
         countdownTime = difftime(convertedTime, t); // Tid fra nå til alarm
 
