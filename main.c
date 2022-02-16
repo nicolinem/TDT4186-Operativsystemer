@@ -107,7 +107,7 @@ int main()
     
    else if (input == 'c'){
         printf("Cancel which alarm?");
-        scanf("%d", &pos);
+        scanf("\n%d", &pos);
         int size = sizeof(alarms)/sizeof(alarms[0]);
 
         if(pos < 0 || pos > size){
@@ -132,14 +132,6 @@ int main()
         printf("Invalid command");
     }
     
-    /*printf("Enter a number: ");
-    scanf("%f", &num1);
-    printf("Enter another number: ");
-    scanf("%lf", &num2);
-
-    printf("num1 = %f\n", num1);
-    printf("num2 = %lf", num2);*/
-
     }
-    exit(0); //denne kjører mange ganger
+    exit(0);
 }
