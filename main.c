@@ -14,12 +14,12 @@
 
 // }
 float num1;
-    double num2;
+double num2;
 
-char input;
-time_t t;   
-time_t alarms[10] = {0};
-int pos, size, i;
+int year, month, day, hour, minute, second, countdownTime, pid;
+struct tm tid = {0};
+
+
 
     char input;
     time_t t;   
@@ -33,7 +33,7 @@ int main()
     time(&t);
     printf("\nWelcome to the alarm clock! It is currently: %s", ctime(&t));
     printf("Please enter 's' (schedule), 'l' (list), 'c' (cancel), 'x' (exit)");
-    scanf("%c", &input);
+    scanf("\n%c", &input);
     
     if (input == 's'){
         printf("Schedule alarm at which date and time?");
@@ -49,22 +49,19 @@ int main()
         convertedTime = mktime(&tid); // Gjør om input strengen til tidsformat
         alarms[0] = convertedTime;
 
-        delay = difftime(convertedTime, t); // Tid fra nå til alarm
-        printf("Delay:  %d\n", delay);
+        countdownTime = difftime(convertedTime, t); // Tid fra nå til alarm
 
         pid = fork();               // Lager en barneprosess med fork() (duplikat av koden, i samme sted, så skal den termineres), det er denne som skal telle ned i bakrunnen
         if (pid == 0)               // Barneprosessen
         {
-            sleep(delay);
-            printf("Ding!, alarm went off");
+            sleep(countdownTime);
+            printf("\nDing!, alarm for %d went off\n", getpid());
             exit(0);
-        } else{                     // Foreldreprosessen - MEN DEN FORTSETTER IKKE SOM DEN SKAL! Den burde restarte med en gang og spørre om ny input, nå venter den til barnet er ferdig
-            wait(NULL);                         //Se tempCodeRunnerFile.c for enklere men fungerende kode
-            printf("test: %d\n", pid);          //For testing, printer ut barneprosessens ID-nummer, så vet vi hvilken klokke som ringer
+        } else{                                  //For testing, printer ut barneprosessens ID-nummer, så vet vi hvilken klokke som ringer
+            printf("Alarm %d set for %d seconds\n", pid, countdownTime);          //For testing, printer ut barneprosessens ID-nummer, så vet vi hvilken klokke som ringer
         }
         
 
-        printf("done!!\n"); //For testing bare
 
         }
 
@@ -99,7 +96,6 @@ int main()
                 printf("%d\t", alarms[i]);
             }
         }
-        return 0;
    }
     else if (input == 'x'){
         printf("Goodbye!");
