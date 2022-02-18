@@ -10,15 +10,7 @@
 #include <sys/wait.h>
 #include <signal.h>
 
-//     void signalHandler(int signal)
-//     {   
-//     if (signal == SIGALRM)
-//     {
-//     printf("Ding!\n");
-//     wait(NULL);
-//     }
 
-// }
 float num1;
 double num2;
 
@@ -50,7 +42,7 @@ int main()
     
     if (input == 's'){
         printf("Schedule alarm at which date and time?");
-        scanf("%4d-%2d-%2d %2d:%2d:%2d", &year, &month, &day, &hour, &minute ,&second); // Inpput på format: yyyy-mm-dd hh:mm:ss
+        scanf("\n%4d-%2d-%2d %2d:%2d:%2d", &year, &month, &day, &hour, &minute ,&second); // Inpput på format: yyyy-mm-dd hh:mm:ss
         tid.tm_year = year - 1900;
         tid.tm_mon = month -1;
         tid.tm_mday = day;
@@ -102,7 +94,7 @@ int main()
     }
 
     else if (input == 'l'){
-        for(i = 0; i < sizeof(alarms)/sizeof(alarms[0]); i++) {
+        for(i = 0; i < 10; i++) {
             if (alarms[i] != 0){
                 printf("Alarm %d at %s\n", i + 1, ctime(&alarms[i]));
             }
@@ -110,16 +102,14 @@ int main()
     } 
     
    else if (input == 'c'){
-        printf("Cancel which alarm?");
+        printf("Cancel which alarm?\n");
         scanf("\n%d", &pos);
-        int size = sizeof(alarms)/sizeof(alarms[0]);
 
-        if(pos < 0 || pos > size){
-            printf("Invalid position. Enter a position between  1 to %d", size);
+        if(pos < 0 || pos > 10){
+            printf("Invalid position. Enter a position between  1 to %d\n", size);
         }
         else{
-            int i;
-            for(i = 0; i < 10 - 1; i++) alarms[i] = alarms[i + 1];
+            alarms[pos] = 0;
             kill(pid, SIGKILL);
         }
    }
@@ -127,7 +117,7 @@ int main()
         printf("Goodbye!");
     }
     else {
-        printf("Invalid command");
+        printf("\nInvalid command\n");
     }
     
     }
