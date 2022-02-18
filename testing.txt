@@ -16,6 +16,14 @@ Alarm 1 at Fri Feb 18 13:27:00 2022
 Welcome to the alarm clock! It is currently: Fri Feb 18 13:26:55 2022
 Please enter 's' (schedule), 'l' (list), 'c' (cancel), 'x' (exit)
 Ding!, alarm for 89998 went off
+
+Welcome to the alarm clock! It is currently: Fri Feb 18 13:26:50 2022
+Please enter 's' (schedule), 'l' (list), 'c' (cancel), 'x' (exit)
+> l
+No scheduled alarms
+
+Welcome to the alarm clock! It is currently: Fri Feb 18 13:26:50 2022
+Please enter 's' (schedule), 'l' (list), 'c' (cancel), 'x' (exit)
 > x
 Goodbye!
 $ 
@@ -37,6 +45,13 @@ Please enter 's' (schedule), 'l' (list), 'c' (cancel), 'x' (exit)
 Schedule alarm at which date and time?
 > 2022-02-18 13:40:29
 Alarm 89583 set for 1210 seconds
+
+Welcome to the alarm clock! It is currently: Fri Feb 18 13:20:42 2022
+Please enter 's' (schedule), 'l' (list), 'c' (cancel), 'x' (exit)
+> c
+Cancel which alarm?
+> 3
+No such alarm!
 
 Welcome to the alarm clock! It is currently: Fri Feb 18 13:20:42 2022
 Please enter 's' (schedule), 'l' (list), 'c' (cancel), 'x' (exit)

@@ -64,8 +64,8 @@ int main()
         countdownTime = difftime(convertedTime, t); // Tid fra nå til alarm
 
         if (countdownTime < 0) {
-            printf("Cannot set alarm in the past!");
-            break;
+            printf("Cannot set alarm in the past!\n");
+            continue;
         }
 
         pid = fork();               // Lager en barneprosess med fork() (duplikat av koden, i samme sted, så skal den termineres), det er denne som skal telle ned i bakrunnen
@@ -109,7 +109,8 @@ int main()
             if (alarms[i] != 0){
                 printf("Alarm %d at %s\n", i + 1, ctime(&alarms[i]));
             }
-        } 
+        }
+        printf("No scheduled alarms\n");
     } 
     
    else if (input == 'c'){
@@ -117,9 +118,12 @@ int main()
         scanf("\n%d", &pos);
 
         if(pos < 0 || pos > 10){
-            printf("Invalid position. Enter a position between  1 to 10");
+            printf("Invalid position. Enter a position between  1 to 10\n");
         }
-        else{
+        if (alarms[pos - 1] == 0){
+            printf("No such alarm!\n");
+        }
+        else {
             alarms[pos-1] = 0;
             pids[pos-1]=0;
             kill(pid, SIGKILL);
@@ -130,7 +134,7 @@ int main()
         exit(0);
     }
     else {
-        printf("\nInvalid command\n");
+        printf("Invalid command\n");  
     }
     
     }
