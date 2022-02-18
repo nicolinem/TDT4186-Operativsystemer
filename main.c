@@ -25,6 +25,7 @@ struct tm tid = {0};
     int pids[10] = {0};
     int pos,size,i;
     int childp;
+    double counter = 0;
 
     volatile sig_atomic_t shutdown_flag = 1;
 
@@ -43,6 +44,12 @@ int main()
     
     if (input == 's'){
         printf("Schedule alarm at which date and time?");
+
+        if (counter == 10){
+            printf("\nNo more available alarms!\n");
+            continue;
+        }
+
         scanf("\n%4d-%2d-%2d %2d:%2d:%2d", &year, &month, &day, &hour, &minute ,&second); // Inpput på format: yyyy-mm-dd hh:mm:ss
         tid.tm_year = year - 1900;
         tid.tm_mon = month -1;
@@ -52,14 +59,16 @@ int main()
         tid.tm_sec = second;
 
         time_t convertedTime;
+
         convertedTime = mktime(&tid); // Gjør om input strengen til tidsformat
-          for(i = 0; i < 10; i++) {
+
+        for(i = 0; i < 10; i++) {
             if (alarms[i] == 0){
                 alarms[i] = convertedTime;
+                counter ++;
                 break;
             }
-            
-        } 
+        }
         
         countdownTime = difftime(convertedTime, t); // Tid fra nå til alarm
 
@@ -105,15 +114,22 @@ int main()
     }
 
     else if (input == 'l'){
+        if (counter == 0){
+            printf("No scheduled alarms\n");
+            continue;
+        }
         for(i = 0; i < 10; i++) {
             if (alarms[i] != 0){
                 printf("Alarm %d at %s\n", i + 1, ctime(&alarms[i]));
             }
         }
-        printf("No scheduled alarms\n");
     } 
     
    else if (input == 'c'){
+       if (counter == 0){
+           printf("No scheduled alarms\n");
+           continue;
+       }
         printf("Cancel which alarm?\n");
         scanf("\n%d", &pos);
 
@@ -127,6 +143,7 @@ int main()
             alarms[pos-1] = 0;
             pids[pos-1]=0;
             kill(pid, SIGKILL);
+            counter--;
         }
    }
     else if (input == 'x'){
