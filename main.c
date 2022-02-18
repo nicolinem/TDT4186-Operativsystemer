@@ -22,6 +22,7 @@ struct tm tid = {0};
     time_t t;   
     int delay, pid;
     time_t alarms[10] = {0};
+    int pids[10] = {0};
     int pos,size,i;
     int childp;
 
@@ -57,11 +58,10 @@ int main()
                 alarms[i] = convertedTime;
                 break;
             }
-            else{
-                printf("No more available alarms!");
-            }
+            
         } 
-
+        
+        
         countdownTime = difftime(convertedTime, t); // Tid fra nå til alarm
 
         pid = fork();               // Lager en barneprosess med fork() (duplikat av koden, i samme sted, så skal den termineres), det er denne som skal telle ned i bakrunnen
@@ -88,7 +88,14 @@ int main()
                 exit(EXIT_FAILURE);
             }
             exit(0);
-        } else{                                  //For testing, printer ut barneprosessens ID-nummer, så vet vi hvilken klokke som ringer
+        } else{   
+            for(i = 0; i < 10; i++) {
+            if (pids[i] == 0){
+                pids[i] = pid;
+                break;
+            }
+            
+        }                                //For testing, printer ut barneprosessens ID-nummer, så vet vi hvilken klokke som ringer
             printf("Alarm %d set for %d seconds\n", pid, countdownTime);          //For testing, printer ut barneprosessens ID-nummer, så vet vi hvilken klokke som ringer
         }
     }
@@ -109,12 +116,14 @@ int main()
             printf("Invalid position. Enter a position between  1 to %d\n", size);
         }
         else{
-            alarms[pos] = 0;
+            alarms[pos-1] = 0;
+            pids[pos-1]=0;
             kill(pid, SIGKILL);
         }
    }
     else if (input == 'x'){
         printf("Goodbye!");
+        exit(0);
     }
     else {
         printf("\nInvalid command\n");
