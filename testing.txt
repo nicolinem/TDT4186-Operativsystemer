@@ -79,7 +79,7 @@ Please enter 's' (schedule), 'l' (list), 'c' (cancel), 'x' (exit)
 > s
 Schedule alarm at which date and time?
 > 2021-02-18 13:45:00
-Alarm cannot be in the past!
+Cannot set alarm in the past!
 $ 
 
 
