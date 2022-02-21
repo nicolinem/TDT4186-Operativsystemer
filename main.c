@@ -14,7 +14,7 @@
 float num1;
 double num2;
 
-int year, month, day, hour, minute, second, countdownTime, pid;
+int year, month, day, hour, minute, second, countdownTime, pid, st;
 struct tm tid = {0};
 
 
@@ -64,10 +64,28 @@ int main()
         
         countdownTime = difftime(convertedTime, t); // Tid fra nå til alarm
 
+        
+/*
+        while ((pid = waitpid(-1, &st, WNOHANG)) > 0) { //Waits for any child process to end
+            printf("Child pid %d exited\n", pid);
+        }
+*/
+
         pid = fork();               // Lager en barneprosess med fork() (duplikat av koden, i samme sted, så skal den termineres), det er denne som skal telle ned i bakrunnen
         if (pid == 0)               // Barneprosessen
         {
             sleep(countdownTime);
+
+             
+/*
+            pid = wait(&status);
+             if (WIFEXITED(status)){
+                 fprintf(stderr, "\n\t[%d]\tProcess %d exited with status %d.\n",
+                 (int) getpid(), pid, WEXITSTATUS(status));
+
+             }
+*/
+            
             printf("\nDing!, alarm for %d went off\n", getpid());
 
             struct sigaction sigterm_action;
@@ -87,13 +105,15 @@ int main()
                 perror("sigaction SIGTERM");
                 exit(EXIT_FAILURE);
             }
+            
             exit(0);
+
         } else{   
             for(i = 0; i < 10; i++) {
             if (pids[i] == 0){
                 pids[i] = pid;
                 break;
-            }
+            }            
             
         }                                //For testing, printer ut barneprosessens ID-nummer, så vet vi hvilken klokke som ringer
             printf("Alarm %d set for %d seconds\n", pid, countdownTime);          //For testing, printer ut barneprosessens ID-nummer, så vet vi hvilken klokke som ringer
