@@ -82,6 +82,7 @@ int main()
         {
             sleep(countdownTime);
             printf("\nDing!, alarm for %d went off\n", getpid());
+            system("afplay --volume 0.2 alarm.mp3");
 
             struct sigaction sigterm_action;
             memset(&sigterm_action, 0, sizeof(sigterm_action));
@@ -100,7 +101,7 @@ int main()
                 perror("sigaction SIGTERM");
                 exit(EXIT_FAILURE);
             }
-            exit(0);
+            continue;
         } else{   
             for(i = 0; i < 10; i++) {
             if (pids[i] == 0){
