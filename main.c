@@ -25,6 +25,7 @@ struct tm tid = {0};
     int pids[10] = {0};
     int pos,size,i;
     int childp;
+    double counter = 0;
 
     volatile sig_atomic_t shutdown_flag = 1;
 
@@ -43,6 +44,12 @@ int main()
     
     if (input == 's'){
         printf("Schedule alarm at which date and time?");
+
+        if (counter == 10){
+            printf("\nNo more available alarms!\n");
+            continue;
+        }
+
         scanf("\n%4d-%2d-%2d %2d:%2d:%2d", &year, &month, &day, &hour, &minute ,&second); // Inpput på format: yyyy-mm-dd hh:mm:ss
         tid.tm_year = year - 1900;
         tid.tm_mon = month -1;
@@ -52,22 +59,27 @@ int main()
         tid.tm_sec = second;
 
         time_t convertedTime;
+
         convertedTime = mktime(&tid); // Gjør om input strengen til tidsformat
-          for(i = 0; i < 10; i++) {
+
+        for(i = 0; i < 10; i++) {
             if (alarms[i] == 0){
                 alarms[i] = convertedTime;
+                counter ++;
                 break;
             }
-            
-        } 
-        
+        }
         
         countdownTime = difftime(convertedTime, t); // Tid fra nå til alarm
 
-        
+        if (countdownTime < 0) {
+            printf("Cannot set alarm in the past!\n");
+            continue;
+        }
 /*
         while ((pid = waitpid(-1, &st, WNOHANG)) > 0) { //Waits for any child process to end
             printf("Child pid %d exited\n", pid);
+    
         }
 */
 
@@ -75,18 +87,9 @@ int main()
         if (pid == 0)               // Barneprosessen
         {
             sleep(countdownTime);
-
-             
-/*
-            pid = wait(&status);
-             if (WIFEXITED(status)){
-                 fprintf(stderr, "\n\t[%d]\tProcess %d exited with status %d.\n",
-                 (int) getpid(), pid, WEXITSTATUS(status));
-
-             }
-*/
             
             printf("\nDing!, alarm for %d went off\n", getpid());
+            system("afplay --volume 0.2 alarm.mp3");
 
             struct sigaction sigterm_action;
             memset(&sigterm_action, 0, sizeof(sigterm_action));
@@ -105,9 +108,7 @@ int main()
                 perror("sigaction SIGTERM");
                 exit(EXIT_FAILURE);
             }
-            
-            exit(0);
-
+            continue;
         } else{   
             for(i = 0; i < 10; i++) {
             if (pids[i] == 0){
@@ -119,26 +120,38 @@ int main()
             printf("Alarm %d set for %d seconds\n", pid, countdownTime);          //For testing, printer ut barneprosessens ID-nummer, så vet vi hvilken klokke som ringer
         }
     }
-
+    
     else if (input == 'l'){
+        if (counter == 0){
+            printf("No scheduled alarms\n");
+            continue;
+        }
         for(i = 0; i < 10; i++) {
             if (alarms[i] != 0){
                 printf("Alarm %d at %s\n", i + 1, ctime(&alarms[i]));
             }
-        } 
+        }
     } 
     
    else if (input == 'c'){
+       if (counter == 0){
+           printf("No scheduled alarms\n");
+           continue;
+       }
         printf("Cancel which alarm?\n");
         scanf("\n%d", &pos);
 
         if(pos < 0 || pos > 10){
-            printf("Invalid position. Enter a position between  1 to %d\n", size);
+            printf("Invalid position. Enter a position between  1 to 10\n");
         }
-        else{
+        if (alarms[pos - 1] == 0){
+            printf("No such alarm!\n");
+        }
+        else {
             alarms[pos-1] = 0;
             pids[pos-1]=0;
             kill(pid, SIGKILL);
+            counter--;
         }
    }
     else if (input == 'x'){
@@ -146,7 +159,7 @@ int main()
         exit(0);
     }
     else {
-        printf("\nInvalid command\n");
+        printf("Invalid command\n");  
     }
     
     }

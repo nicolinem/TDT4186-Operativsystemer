@@ -1,0 +1,103 @@
+Case 1: Schedule an alarm and exit program. 
+
+$ ./alarmclock
+Welcome to the alarm clock! It is currently: Fri Feb 18 13:26:37 2022
+Please enter 's' (schedule), 'l' (list), 'c' (cancel), 'x' (exit)
+> s
+Schedule alarm at which date and time?
+> 2022-02-18 13:27:00
+Alarm 89998 set for 23 seconds
+
+Welcome to the alarm clock! It is currently: Fri Feb 18 13:26:50 2022
+Please enter 's' (schedule), 'l' (list), 'c' (cancel), 'x' (exit)
+> l
+Alarm 1 at Fri Feb 18 13:27:00 2022
+
+Welcome to the alarm clock! It is currently: Fri Feb 18 13:26:55 2022
+Please enter 's' (schedule), 'l' (list), 'c' (cancel), 'x' (exit)
+Ding!, alarm for 89998 went off
+
+Welcome to the alarm clock! It is currently: Fri Feb 18 13:26:50 2022
+Please enter 's' (schedule), 'l' (list), 'c' (cancel), 'x' (exit)
+> l
+No scheduled alarms
+
+Welcome to the alarm clock! It is currently: Fri Feb 18 13:26:50 2022
+Please enter 's' (schedule), 'l' (list), 'c' (cancel), 'x' (exit)
+> x
+Goodbye!
+$ 
+
+
+Case 2: Cancel an alarm. 
+
+$ ./alarmclock
+Welcome to the alarm clock! It is currently: Fri Feb 18 13:19:35 2022
+Please enter 's' (schedule), 'l' (list), 'c' (cancel), 'x' (exit)
+> s
+Schedule alarm at which date and time?
+> 2022-02-18 13:30:02
+Alarm 89565 set for 627 seconds
+
+Welcome to the alarm clock! It is currently: Fri Feb 18 13:20:19 2022
+Please enter 's' (schedule), 'l' (list), 'c' (cancel), 'x' (exit)
+> s
+Schedule alarm at which date and time?
+> 2022-02-18 13:40:29
+Alarm 89583 set for 1210 seconds
+
+Welcome to the alarm clock! It is currently: Fri Feb 18 13:20:42 2022
+Please enter 's' (schedule), 'l' (list), 'c' (cancel), 'x' (exit)
+> c
+Cancel which alarm?
+> 3
+No such alarm!
+
+Welcome to the alarm clock! It is currently: Fri Feb 18 13:20:42 2022
+Please enter 's' (schedule), 'l' (list), 'c' (cancel), 'x' (exit)
+> c
+Cancel which alarm?
+> 2
+
+Welcome to the alarm clock! It is currently: Fri Feb 18 13:21:00 2022
+Please enter 's' (schedule), 'l' (list), 'c' (cancel), 'x' (exit)
+> l
+Alarm 1 at Fri Feb 18 13:30:02 2022
+$ 
+
+
+Case 3: Schedule more than 10 alarms.
+
+$ ./alarmclock
+Write following input 10 times: 
+Welcome to the alarm clock! It is currently: Fri Feb 18 13:39:48 2022
+Please enter 's' (schedule), 'l' (list), 'c' (cancel), 'x' (exit)
+> s
+Schedule alarm at which date and time?
+> 2022-02-18 13:45:00
+Alarm 90937 set for 312 seconds
+
+No more available alarms!
+$ 
+
+
+Case 4: Invalid command and alarm. 
+
+$ ./alarmclock
+Welcome to the alarm clock! It is currently: Fri Feb 18 13:39:48 2022
+Please enter 's' (schedule), 'l' (list), 'c' (cancel), 'x' (exit)
+> yo
+Invalid command
+
+Welcome to the alarm clock! It is currently: Fri Feb 18 13:39:48 2022
+Please enter 's' (schedule), 'l' (list), 'c' (cancel), 'x' (exit)
+> s
+Schedule alarm at which date and time?
+> 2021-02-18 13:45:00
+Cannot set alarm in the past!
+$ 
+
+
+
+
+
