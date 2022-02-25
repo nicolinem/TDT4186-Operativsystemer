@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <errno.h>
 
 float num1;
 double num2;
@@ -36,10 +37,12 @@ int main()
 {
     while (1)
     {
+
         time(&t);
         printf("\nWelcome to the alarm clock! It is currently: %s", ctime(&t));
         printf("Please enter 's' (schedule), 'l' (list), 'c' (cancel), 'x' (exit)");
         scanf("\n%c", &input);
+        fflush(stdin);
 
         if (input == 's')
         {
@@ -166,11 +169,12 @@ int main()
         }
         else if (input == 'x')
         {
-            printf("Goodbye!");
+            printf("Goodbye!\n");
             exit(0);
         }
         else
         {
+
             printf("Invalid command\n");
         }
     }
