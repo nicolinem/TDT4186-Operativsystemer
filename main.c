@@ -24,6 +24,7 @@ int pids[10] = {0};
 int pos, size, i;
 int childp;
 double counter = 0;
+
 volatile sig_atomic_t shutdown_flag = 1;
 
 void cleanupRoutine(int signal_number)
@@ -95,39 +96,14 @@ int main()
                 // Mask other signals from interrupting SIGTERM handler
                 if (sigfillset(&sigterm_action.sa_mask) != 0)
                 {
-                    if (alarms[i] == 0)
-                    {
-                        alarms[i] = convertedTime;
-                        break;
-                    }
+                    perror("sigfillset");
+                    exit(EXIT_FAILURE);
                 }
-
-                countdownTime = difftime(convertedTime, t); // Tid fra nå til alarm
-
-                pid = fork(); // Lager en barneprosess med fork() (duplikat av koden, i samme sted, så skal den termineres), det er denne som skal telle ned i bakrunnen
-                if (pid == 0) // Barneprosessen
+                // Register SIGTERM handler
+                if (sigaction(SIGTERM, &sigterm_action, NULL) != 0)
                 {
-                    sleep(countdownTime);
-                    printf("\nDing!, alarm for %d went off\n", getpid());
-
-                    struct sigaction sigterm_action;
-                    memset(&sigterm_action, 0, sizeof(sigterm_action));
-                    sigterm_action.sa_handler = &cleanupRoutine;
-                    sigterm_action.sa_flags = 0;
-
-                    // Mask other signals from interrupting SIGTERM handler
-                    if (sigfillset(&sigterm_action.sa_mask) != 0)
-                    {
-                        perror("sigfillset");
-                        exit(EXIT_FAILURE);
-                    }
-                    // Register SIGTERM handler
-                    if (sigaction(SIGTERM, &sigterm_action, NULL) != 0)
-                    {
-                        perror("sigaction SIGTERM");
-                        exit(EXIT_FAILURE);
-                    }
-                    exit(0);
+                    perror("sigaction SIGTERM");
+                    exit(EXIT_FAILURE);
                 }
                 continue;
             }
@@ -140,59 +116,63 @@ int main()
                         pids[i] = pid;
                         break;
                     }
-                }
 
-                else if (input == 'l')
-                {
-                    if (counter == 0)
-                    {
-                        printf("No scheduled alarms\n");
-                        continue;
-                    }
-                    for (i = 0; i < 10; i++)
-                    {
-                        if (alarms[i] != 0)
-                        {
-                            printf("Alarm %d at %s\n", i + 1, ctime(&alarms[i]));
-                        }
-                    }
-                }
+                }                                                            // For testing, printer ut barneprosessens ID-nummer, så vet vi hvilken klokke som ringer
+                printf("Alarm %d set for %d seconds\n", pid, countdownTime); // For testing, printer ut barneprosessens ID-nummer, så vet vi hvilken klokke som ringer
+            }
+        }
 
-                else if (input == 'c')
+        else if (input == 'l')
+        {
+            if (counter == 0)
+            {
+                printf("No scheduled alarms\n");
+                continue;
+            }
+            for (i = 0; i < 10; i++)
+            {
+                if (alarms[i] != 0)
                 {
-                    if (counter == 0)
-                    {
-                        printf("No scheduled alarms\n");
-                        continue;
-                    }
-                    printf("Cancel which alarm?\n");
-                    scanf("\n%d", &pos);
-
-                    if (pos < 0 || pos > 10)
-                    {
-                        printf("Invalid position. Enter a position between  1 to 10\n");
-                    }
-                    if (alarms[pos - 1] == 0)
-                    {
-                        printf("No such alarm!\n");
-                    }
-                    else
-                    {
-                        alarms[pos - 1] = 0;
-                        pids[pos - 1] = 0;
-                        kill(pid, SIGKILL);
-                        counter--;
-                    }
-                }
-                else if (input == 'x')
-                {
-                    printf("Goodbye!");
-                    exit(0);
-                }
-                else
-                {
-                    printf("Invalid command\n");
+                    printf("Alarm %d at %s\n", i + 1, ctime(&alarms[i]));
                 }
             }
+        }
+
+        else if (input == 'c')
+        {
+            if (counter == 0)
+            {
+                printf("No scheduled alarms\n");
+                continue;
+            }
+            printf("Cancel which alarm?\n");
+            scanf("\n%d", &pos);
+
+            if (pos < 0 || pos > 10)
+            {
+                printf("Invalid position. Enter a position between  1 to 10\n");
+            }
+            if (alarms[pos - 1] == 0)
+            {
+                printf("No such alarm!\n");
+            }
+            else
+            {
+                alarms[pos - 1] = 0;
+                pids[pos - 1] = 0;
+                kill(pid, SIGKILL);
+                counter--;
+            }
+        }
+        else if (input == 'x')
+        {
+            printf("Goodbye!");
             exit(0);
         }
+        else
+        {
+            printf("Invalid command\n");
+        }
+    }
+    exit(0);
+}
