@@ -30,11 +30,28 @@ volatile sig_atomic_t shutdown_flag = 1;
 
 void cleanupRoutine(int signal_number)
 {
-    shutdown_flag = 0;
+    // shutdown_flag = 0;
+    int saved_errno = errno;
+    while (waitpid((pid_t)(-1), 0, WNOHANG) > 0)
+    {
+    }
+    errno = saved_errno;
 }
 
 int main()
 {
+    struct sigaction sigterm_action;
+    memset(&sigterm_action, 0, sizeof(sigterm_action));
+    sigterm_action.sa_handler = &cleanupRoutine;
+
+    sigterm_action.sa_flags = 0;
+    sigemptyset(&sigterm_action.sa_mask);
+    sigterm_action.sa_flags = SA_RESTART | SA_NOCLDSTOP;
+    if (sigaction(SIGCHLD, &sigterm_action, 0) == -1)
+    {
+        perror(0);
+        exit(1);
+    }
     while (1)
     {
 
@@ -91,24 +108,19 @@ int main()
                 printf("\nDing!, alarm for %d went off\n", getpid());
                 system("afplay --volume 0.2 alarm.mp3");
 
-                struct sigaction sigterm_action;
-                memset(&sigterm_action, 0, sizeof(sigterm_action));
-                sigterm_action.sa_handler = &cleanupRoutine;
-                sigterm_action.sa_flags = 0;
-
-                // Mask other signals from interrupting SIGTERM handler
-                if (sigfillset(&sigterm_action.sa_mask) != 0)
-                {
-                    perror("sigfillset");
-                    exit(EXIT_FAILURE);
-                }
-                // Register SIGTERM handler
-                if (sigaction(SIGTERM, &sigterm_action, NULL) != 0)
-                {
-                    perror("sigaction SIGTERM");
-                    exit(EXIT_FAILURE);
-                }
-                continue;
+                // // Mask other signals from interrupting SIGTERM handler
+                // if (sigfillset(&sigterm_action.sa_mask) != 0)
+                // {
+                //     perror("sigfillset");
+                //     exit(EXIT_FAILURE);
+                // }
+                // // Register SIGTERM handler
+                // if (sigaction(SIGTERM, &sigterm_action, NULL) != 0)
+                // {
+                //     perror("sigaction SIGTERM");
+                //     exit(EXIT_FAILURE);
+                // }
+                exit(0);
             }
             else
             {
