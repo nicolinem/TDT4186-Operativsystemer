@@ -107,6 +107,7 @@ int main()
                 sleep(countdownTime);
                 printf("\nDing!, alarm for %d went off\n", getpid());
                 system("afplay --volume 0.2 alarm.mp3");
+                continue;
                 /*
                 for (i = 0; i < 10; i++) { //prøver å slette alarmer etter den går av, men denne funker ikke helt. 
                     if (alarms[i] == convertedTime) {
