@@ -71,7 +71,7 @@ int main()
                 continue;
             }
 
-            scanf("\n%4d-%2d-%2d %2d:%2d:%2d", &year, &month, &day, &hour, &minute, &second); // Inpput på format: yyyy-mm-dd hh:mm:ss
+            scanf("\n%4d-%2d-%2d %2d:%2d:%2d", &year, &month, &day, &hour, &minute, &second); // input format: yyyy-mm-dd hh:mm:ss
             tid.tm_year = year - 1900;
             tid.tm_mon = month - 1;
             tid.tm_mday = day;
@@ -81,7 +81,7 @@ int main()
 
             time_t convertedTime;
 
-            convertedTime = mktime(&tid); // Gjør om input strengen til tidsformat
+            convertedTime = mktime(&tid); // convert input to time 
 
             for (i = 0; i < 10; i++)
             {
@@ -93,7 +93,7 @@ int main()
                 }
             }
 
-            countdownTime = difftime(convertedTime, t); // Tid fra nå til alarm
+            countdownTime = difftime(convertedTime, t); // time from now to alarm
 
             if (countdownTime < 0)
             {
@@ -101,23 +101,12 @@ int main()
                 continue;
             }
 
-            pid = fork(); // Lager en barneprosess med fork() (duplikat av koden, i samme sted, så skal den termineres), det er denne som skal telle ned i bakrunnen
-            if (pid == 0) // Barneprosessen
+            pid = fork(); // create child process
+            if (pid == 0) 
             {
                 sleep(countdownTime);
                 printf("\nDing!, alarm for %d went off\n", getpid());
                 system("afplay --volume 0.2 alarm.mp3");
-                continue;
-                /*
-                for (i = 0; i < 10; i++) { //prøver å slette alarmer etter den går av, men denne funker ikke helt. 
-                    if (alarms[i] == convertedTime) {
-                        alarms[i] = alarms[i+1];
-                        counter--;
-                        break;
-                    }
-                }
-*/
-                
                 exit(0);
             }
             else
@@ -131,7 +120,7 @@ int main()
                     }
 
                 }                                                            
-                printf("Alarm %d set for %d seconds\n", pid, countdownTime); // For testing, printer ut barneprosessens ID-nummer, så vet vi hvilken klokke som ringer
+                printf("Alarm %d set for %d seconds\n", pid, countdownTime); 
             }
         }
 
