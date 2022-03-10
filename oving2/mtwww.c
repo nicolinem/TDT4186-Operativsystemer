@@ -14,7 +14,7 @@ int main(int argc, char const *argv[])
     struct sockaddr_in address;
     int addrlen = sizeof(address);
 
-    char *hello = "Hello from server";
+    char *hello = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
 
     // Creating socket file descriptor
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
@@ -52,7 +52,7 @@ int main(int argc, char const *argv[])
         valread = read(new_socket, buffer, 30000);
         printf("%s\n", buffer);
         write(new_socket, hello, strlen(hello));
-        printf("------------------Hello message sentt-------------------\n");
+        printf("------------------Hello message sent-------------------\n");
         close(new_socket);
     }
     return 0;
