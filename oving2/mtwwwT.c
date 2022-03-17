@@ -32,17 +32,27 @@ FILE * stream;
 
 stream = fopen("index.html", "r");
 
+struct stat sb;
+
+if(stat(stream, &sb) == -1) {
+
+perror("stat");
+
+}
+
+else {
+
+printf("File size:                %lld bytes\n",
+
+(long long) sb.st_size);
+
+}
+
 int count = fread(&buffer, sizeof(char), 30, stream);
 
 fclose(stream);
 
-printf("%d", count);
-
-char *hello = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: count\nResponse: buffer";
-
-/**char *header = "GET /index.html HTTP/1.1\r\nHost: http://localhost:8080\r\n\r\n"; //todo
-
-send(sockfd,header,strlen(header),0);**/
+char *hello = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: count\n";
 
 // Creating socket file descriptor
 

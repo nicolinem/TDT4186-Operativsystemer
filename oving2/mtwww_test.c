@@ -36,13 +36,55 @@ int count = fread(&buffer, sizeof(char), 30, stream);
 
 fclose(stream);
 
-printf("%d", count);
+char *hello = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: count\n";
 
-char *hello = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: count\nResponse: buffer";
+if(c.r_type == "GET")
 
-/**char *header = "GET /index.html HTTP/1.1\r\nHost: http://localhost:8080\r\n\r\n"; //todo
+{
 
-send(sockfd,header,strlen(header),0);**/
+ifstream fp;
+
+char *readblock;
+
+size_t size;
+
+fp.open(c.r_fp.c_str());
+
+if (send(c.r_acceptid,c.r_ctype.c_str(), strlen(c.r_ctype.c_str()), 0) == -1)
+
+perror("send");
+
+if (fp.is_open())
+
+{
+
+fp.seekg (0, ios::end);
+
+size = fp.tellg();
+
+readblock = new char [size];
+
+fp.seekg (0, ios::beg);
+
+fp.read(readblock, size);
+
+}
+
+else
+
+cout<<"Never went Inside"<<endl;
+
+if (send(c.r_acceptid, readblock, size, 0) == -1)
+
+perror("send");
+
+fp.close();
+
+delete [] readblock;
+
+close(c.r_acceptid);
+
+}
 
 // Creating socket file descriptor
 
