@@ -4,11 +4,11 @@
 
 #include <semaphore.h>
 
-sem_t sem;
+// sem_t sem;
 
-int ret;
+// int ret;
 
-int value;
+// int value;
 
 /*
 
@@ -30,6 +30,7 @@ int value;
 
 */
 
+//trenger vi denne?
 typedef struct SEM SEM;
 
 /* Creates a new semaphore.
@@ -61,6 +62,10 @@ typedef struct SEM SEM;
 */
 
 SEM *sem_init(int initVal){
+  SEM *sem = malloc(sizeof(SEM))
+  if (sem == NULL) {
+    return NULL;
+  }
 
 ret = sem_init(&sem, 0, initVal);
 
@@ -81,22 +86,21 @@ sem_init(&sem, 0, initVal);
 *
 
 * Returns:
-
-*
-
-* 0 on success, negative value on error.
-
-*
-
-* In case of an error, not all resources may have been freed, but
-
-* nevertheless the semaphore handle must not be used any more.
-
+* 0 on success, negative value on error. In case of an error, not all resources may have been freed, but
+nevertheless the semaphore handle must not be used any more.
 */
 
-int sem_del(SEM *sem);
+//If successful, pthread_mutex_destroy() shall return zero; otherwise, an error number shall be returned 
 
-sem_destroy(&sem);
+int sem_del(SEM *sem){
+  pthread_mutex_destroy(&sem->lock);
+  pthread_cond_destroy(&sem->cond);
+  free(sem);
+
+  //sem_destroy(&sem);
+}
+
+
 
 /* P (wait) operation.
 
@@ -142,12 +146,16 @@ ret = sem_wait(&sem);
 
 */
 
-s
+
 
 void V(SEM *sem){
+  pthread_mutex_lock(&sem->lock);
+  //increments semaphore value
+  sem->value++;
+  pthread_mutex_unlock(&sem->lock);
+  pthread_cond_signal(&sem->cond);
 
-ret = sem_post(&sem);;
+  //ret = sem_post(&sem);;
 
 };
 
-#endif
