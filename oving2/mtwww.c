@@ -4,41 +4,45 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <netinet/in.h>
+#include <netinet/ip.h>
 #include <pthread.h>
 #include <time.h>
 #include <limits.h>
-#include "bbuffer.c"
+#include "bbuffer.h"
 
 #define PORT 8000
 #define BUFSIZE 4096
 #define THREAD_POOL_SIZE 10
 
 pthread_t thread_pool[THREAD_POOL_SIZE];
+struct BNDBUF *bbuffer;
 
 // BNDBUF *bbuffer = malloc(sizeof(BNDBUF));
-BNDBUF *bbuffer;
 
-void *handle_connection(int client_sock);
+void *
+handle_connection(int client_sock);
 void read_file_send_response(char *filename, char *cwd, int client_socket);
 void *thread_function(void *arg);
 
-int main(void)
+int main(int argc, char *argv[])
 {
-    bbuffer = bb_init(10);
+
+    bbuffer = bb_init(THREAD_POOL_SIZE);
 
     printf("Hello world!");
     int socket_desc, client_sock;
-    struct sockaddr_in server_addr, client_addr;
+    // struct sockaddr_in ;
     socklen_t client_size;
+    struct sockaddr_in6 server_addr, client_addr;
 
     // Vi lager threads som skal håndtere requestene, de henter requests fra bufferen ( i teorien)
     for (int i = 0; i < THREAD_POOL_SIZE; i++)
     {
-        pthread_create(&thread_pool[i], NULL, thread_function, (void *)NULL);
+        pthread_create(&thread_pool[i], NULL, thread_function, bbuffer);
     }
-
     // Create socket:
-    socket_desc = socket(AF_INET, SOCK_STREAM, 0);
+    socket_desc = socket(AF_INET6, SOCK_STREAM, 0);
 
     if (socket_desc < 0)
     {
@@ -48,12 +52,15 @@ int main(void)
     printf("Socket created successfully\n");
 
     // Set port and IP:
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(PORT);
-    server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    // server_addr.sin_family = AF_INET6;
+    // server_addr.sin_port = htons(PORT);
+    // server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    server_addr.sin6_family = AF_INET6;
+    server_addr.sin6_addr = in6addr_any;
+    server_addr.sin6_port = htons(PORT);
 
     // Bind to the set port and IP:
-    if (bind(socket_desc, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
+    if (bind(socket_desc, (struct sockaddr_in6 *)&server_addr, sizeof(server_addr)) < 0)
     {
         printf("Error binding to port\n");
         return -1;
@@ -61,7 +68,7 @@ int main(void)
     printf("Success: Bind to port\n");
 
     // Listen for clients:
-    if (listen(socket_desc, 1) < 0)
+    if (listen(socket_desc, 10) < 0)
     {
         printf("Error while listening\n");
         return -1;
@@ -84,8 +91,6 @@ int main(void)
         int *pclient = malloc(sizeof(int));
         *pclient = client_sock;
         bb_add(bbuffer, client_sock);
-
-        printf("Client connected at IP: %s and port: %i\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
     };
     close(socket_desc);
 
@@ -97,7 +102,6 @@ void *thread_function(void *arg)
 {
     while (1)
     {
-
         int pclient = bb_get(bbuffer);
         {
             handle_connection(pclient);
@@ -133,6 +137,8 @@ void *handle_connection(int client_sock)
     }
 
     printf("Trying to access more memory\n");
+
+    //KOK
     char request[3][4096];
 
     char delim[] = " ";
@@ -142,25 +148,26 @@ void *handle_connection(int client_sock)
 
     while (token != NULL)
     {
-        printf("Trying to input to memmory\n");
+        // printf("Trying to input to memmory\n");
         if (tokenPossition < 4)
         {
             strcpy(request[tokenPossition], token);
         }
-        printf("%s\n", token);
+        // printf("%s\n", token);
         token = strtok(NULL, delim);
         tokenPossition++;
     }
-
+    //KOK
+    
+    printf("TESTINGTESTING");
+    printf("%s", request[1]);
     read_file_send_response(request[1], cwd, client_sock);
 
     printf("While loop finished\n");
 
     printf("Token first possition: %s\n", request[0]);
     printf("Token path: %s \n", request[1]);
-
     close(client_sock);
-    return NULL;
 }
 
 // Håndterer hver request og svarer serveren
