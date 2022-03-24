@@ -18,8 +18,6 @@
 pthread_t thread_pool[THREAD_POOL_SIZE];
 struct BNDBUF *bbuffer;
 
-// BNDBUF *bbuffer = malloc(sizeof(BNDBUF));
-
 void *
 handle_connection(int client_sock);
 void read_file_send_response(char *filename, char *cwd, int client_socket);
@@ -27,21 +25,19 @@ void *thread_function(void *arg);
 
 int main(int argc, char *argv[])
 {
-
     bbuffer = bb_init(THREAD_POOL_SIZE);
 
     printf("Hello world!");
     int socket_desc, client_sock;
-    // struct sockaddr_in ;
     socklen_t client_size;
     struct sockaddr_in6 server_addr, client_addr;
 
-    // Vi lager threads som skal håndtere requestene, de henter requests fra bufferen ( i teorien)
+    // Create threads that will handle requests from buffer
     for (int i = 0; i < THREAD_POOL_SIZE; i++)
     {
         pthread_create(&thread_pool[i], NULL, thread_function, bbuffer);
     }
-    // Create socket:
+    // Create socket
     socket_desc = socket(AF_INET6, SOCK_STREAM, 0);
 
     if (socket_desc < 0)
@@ -59,7 +55,7 @@ int main(int argc, char *argv[])
     server_addr.sin6_addr = in6addr_any;
     server_addr.sin6_port = htons(PORT);
 
-    // Bind to the set port and IP:
+    // Bind to the set port and IP
     if (bind(socket_desc, (struct sockaddr_in6 *)&server_addr, sizeof(server_addr)) < 0)
     {
         printf("Error binding to port\n");
@@ -67,7 +63,7 @@ int main(int argc, char *argv[])
     }
     printf("Success: Bind to port\n");
 
-    // Listen for clients:
+    // Listen for clients
     if (listen(socket_desc, 10) < 0)
     {
         printf("Error while listening\n");
@@ -77,7 +73,7 @@ int main(int argc, char *argv[])
 
     while (1)
     {
-        // Accept an incoming connection:
+        // Accept an incoming connection
         client_size = sizeof(client_addr);
 
         int client_sock = accept(socket_desc, (struct sockaddr *)&client_addr, &client_size);
@@ -87,7 +83,7 @@ int main(int argc, char *argv[])
             return -1;
         }
 
-        // Her legger vi til de innkommende requestene i bufferen ( i teorien)
+        // Add incoming requests from buffer
         int *pclient = malloc(sizeof(int));
         *pclient = client_sock;
         bb_add(bbuffer, client_sock);
@@ -97,7 +93,7 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-// Hva hver thread gjør, de venter basicly på å få en request fra bufferen
+// Threads waiting to get a request from the buffer
 void *thread_function(void *arg)
 {
     while (1)
@@ -111,9 +107,6 @@ void *thread_function(void *arg)
 
 void *handle_connection(int client_sock)
 {
-    // int client_sock = *((int *)p_client_sock);
-    // free(p_client_sock);
-
     char *cwd;          // path name for current directory
     char tmp_cwd[4000]; // temporary current working directory?
     if (getcwd(tmp_cwd, sizeof(tmp_cwd)) != NULL)
@@ -126,7 +119,7 @@ void *handle_connection(int client_sock)
 
     char server_message[2000], client_message[2000];
 
-    // Clean buffers:
+    // Clean buffers
     memset(server_message, '\0', sizeof(server_message));
     memset(client_message, '\0', sizeof(client_message));
 
@@ -138,26 +131,20 @@ void *handle_connection(int client_sock)
 
     printf("Trying to access more memory\n");
 
-    //KOK
     char request[3][4096];
-
     char delim[] = " ";
     char *token = strtok(client_message, delim);
-
     int tokenPossition = 0;
 
     while (token != NULL)
     {
-        // printf("Trying to input to memmory\n");
         if (tokenPossition < 4)
         {
             strcpy(request[tokenPossition], token);
         }
-        // printf("%s\n", token);
         token = strtok(NULL, delim);
         tokenPossition++;
     }
-    //KOK
     
     printf("TESTINGTESTING");
     printf("%s", request[1]);
@@ -170,7 +157,7 @@ void *handle_connection(int client_sock)
     close(client_sock);
 }
 
-// Håndterer hver request og svarer serveren
+// Handle each request and responds to the server
 void read_file_send_response(char *filename, char *cwd, int client_socket)
 {
     char buffer[BUFSIZE];
