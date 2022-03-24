@@ -15,10 +15,10 @@ typedef struct BNDBUF
     int *buffer;
 } BNDBUF;
 
-/* Creates a new Bounded Buffer. */
+// Creates a new Bounded Buffer
 BNDBUF *bb_init(unsigned int size)
 {
-    /* Free all allocated resources if an error occurs */
+    // Free all allocated resources if an error occurs
     BNDBUF *buff = malloc(sizeof(struct BNDBUF));
     if (buff == NULL)
     {
@@ -35,7 +35,7 @@ BNDBUF *bb_init(unsigned int size)
     return buff;
 }
 
-/* Destroys a Bounded Buffer and releases all associated resources */
+// Destroys a Bounded Buffer and releases all associated resources */
 void bb_del(BNDBUF *bb)
 {
     sem_del(bb->empty);
