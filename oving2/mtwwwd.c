@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 {
     bbuffer = bb_init(THREAD_POOL_SIZE);
 
-    printf("Hello world!");
+    printf("Hello world! ");
     int socket_desc, client_sock;
     socklen_t client_size;
     struct sockaddr_in6 server_addr, client_addr;
@@ -111,7 +111,7 @@ void *handle_connection(int client_sock)
     char tmp_cwd[4000]; // temporary current working directory?
     if (getcwd(tmp_cwd, sizeof(tmp_cwd)) != NULL)
     {
-        printf("Det funker!\n");
+        printf("Success!\n");
         cwd = strcat(tmp_cwd, "/doc");
     }
     else

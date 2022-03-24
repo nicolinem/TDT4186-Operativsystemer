@@ -56,7 +56,7 @@ int main(void)
     char tmp_cwd[4000];
     if (getcwd(tmp_cwd, sizeof(tmp_cwd)) != NULL) //Gets current directory 
     {
-        printf("Det funker!\n");
+        printf("Success!\n");
         cwd = strcat(tmp_cwd, "/doc");
     }
     else
