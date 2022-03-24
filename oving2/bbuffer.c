@@ -1,8 +1,5 @@
-#ifndef ____BBUFFER___H___
-#define ____BBUFFER___H___
 #include "bbuffer.h"
 #include <stdio.h>
-#include <malloc.h>
 #include <memory.h>
 /*
  * Bounded Buffer implementation to manage int values that supports multiple
@@ -16,17 +13,16 @@
  * ...you need to figure out the contents of struct BNDBUF yourself
  */
 
-typedef struct BNDBUF_t BNDBUF_t;
 // typedef struct circular_buffer_t circular_buffer_t;
 
-struct BNDBUF_t
+struct BNDBUF
 {
-  int *buff;
-  int start;
-  int end;
-  int size;
-  int count;
-}
+    int *buff;
+    int start;
+    int end;
+    int size;
+    int count;
+};
 
 /* Creates a new Bounded Buffer.
  *
@@ -44,16 +40,16 @@ struct BNDBUF_t
  * handle for the created bounded buffer, or NULL if an error occured.
  */
 
-BNDBUF_t *
+BNDBUF *
 bb_init(unsigned int size)
 {
-  assert(size >= 0);
-  BNDBUF_t cbuf = malloc(sizeof(bb_init));
-  memset(cb, 0, sizeof(cbuff_t));
-  cbuf->size = size;
-  cbuf->buff = (int *)malloc(sizeof(int) * size);
+    // assert(size >= 0);
+    // BNDBUF cbuf = malloc(sizeof(bb_init));
+    // memset(cb, 0, sizeof(cbuff_t));
+    // cbuf->size = size;
+    // cbuf->buff = (int *)malloc(sizeof(int) * size);
 
-  return cbuf;
+    // return cbuf;
 }
 
 /* Destroys a Bounded Buffer.
@@ -65,10 +61,10 @@ bb_init(unsigned int size)
  * bb       Handle of the bounded buffer that shall be freed.
  */
 
-void bb_del(BNDBUF_t *bb)
+void bb_del(BNDBUF *bb)
 {
-  free(bb->buff)
-  free(bb)
+    // free(bb->buff)
+    //     free(bb)
 }
 
 /* Retrieve an element from the bounded buffer.
@@ -86,22 +82,16 @@ void bb_del(BNDBUF_t *bb)
  * the int element
  */
 
-int bb_get(BNDBUF_t *bb) {
-    int element;
+int bb_get(BNDBUF *bb)
+{
+    // int element;
 
-    mutex_lock(&MonitorLock);
-        while(count == 0) {
-            cond_wait(&UntilNotEmpty, &MonitorLock); //waits if the buffer is not empty
-        }
-
-
-
-        
-
+    // mutex_lock(&MonitorLock);
+    // while (count == 0)
+    // {
+    //     cond_wait(&UntilNotEmpty, &MonitorLock); // waits if the buffer is not empty
+    // }
 }
-
-
-
 
 /* Add an element to the bounded buffer.
  *
@@ -119,20 +109,19 @@ int bb_get(BNDBUF_t *bb) {
  * the int element
  */
 
-void bb_add(BNDBUF_t *bb, int fd)
+void bb_add(BNDBUF *bb, int fd)
 {
-  int end = bb->end;
-  if (bb->count && (end % bb->size) == bb->start)
-  {
-    printf("Overflow Elem[%d] %d lost\n", bb->start, bb->buff[bb->start]);
-    bb->start = (bb->start + 1) % bb->size;
-    bb->count--;
-  }
-  printf("Added Elem[%d] = %d\n", bb->end, fd);
-  bb->buff[bb->end] = fd;
-  bb->end = (bb->end + 1) % bb->size;
-  bb->count++;
-}
+    // int end = bb->end;
+    // if (bb->count && (end % bb->size) == bb->start)
+    // {
+    //     printf("Overflow Elem[%d] %d lost\n", bb->start, bb->buff[bb->start]);
+    //     bb->start = (bb->start + 1) % bb->size;
+    //     bb->count--;
+    // }
+    // printf("Added Elem[%d] = %d\n", bb->end, fd);
+    // bb->buff[bb->end] = fd;
+    // bb->end = (bb->end + 1) % bb->size;
+    // bb->count++;
 }
 
-#endif
+// #endif
