@@ -7,7 +7,7 @@
 #include <pthread.h>
 #include <time.h>
 #include <limits.h>
-#include "bbuffer.h"
+#include "bbuffer.c"
 
 #define PORT 8000
 #define BUFSIZE 4096
@@ -99,7 +99,6 @@ void *thread_function(void *arg)
     {
 
         int pclient = bb_get(bbuffer);
-        if (pclient != 0)
         {
             handle_connection(pclient);
         }
