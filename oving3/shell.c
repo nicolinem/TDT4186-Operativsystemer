@@ -113,6 +113,7 @@ int breakCommand(char *str)
        int num_subcmds = 0;
        int out, flag1=0;
        char *subnew[1000];
+	   
         
        while (tmp) 
        {
@@ -216,12 +217,18 @@ int breakCommand(char *str)
 	   close(out);
 	   return 101;
 	 }
-	 else if(strcmp(subcmds[0], "cd") == 0)
+	 else if(strcmp(subcmds[0], "cd") == 0) 
 	 {
 	   int res;
 	   if(subcmds[1]!=NULL)
 	     {
 	       res = chdir(subcmds[1]);
+		   wait(&res);
+		   if(WIFEXITED(res)) {
+			   int statusCode = WEXITSTATUS(res);
+			   printf("Exit status %s = %d\n", subcmds[0],statusCode);
+		   }
+		   
 	     }
 	   else
 	     {
@@ -237,7 +244,17 @@ int breakCommand(char *str)
 	 }
        else if(strcmp(subcmds[0], "exit") == 0)
 	 {
-	   exit(0);
+	   int wstatus;
+	   wait(&wstatus);
+	   if (WIFEXITED(wstatus)) {
+		   int statusCode = WEXITSTATUS(wstatus);
+		   if (statusCode == 0) {
+			   printf("Exit status %s = %d\n", subcmds[0],statusCode); 
+			   exit(0);
+		   }
+	   }
+	  // printf("Exit status: 0");
+	   //exit(0);
 	 }
        else if(strcmp(subcmds[0], "pwd") == 0)
 	 {
@@ -328,6 +345,7 @@ int main(int argc, char *argv[])
       char * tmp;
       int num_cmds, i, flag, rc=0;
       char *fileToRead = "/no/such/file";
+	  int status;
 
       if(argc>2) 
 	{
@@ -435,7 +453,7 @@ int main(int argc, char *argv[])
 		  numCmndsToFork = num_cmds - 1;
 		   if((rc=breakString(cmds[num_cmds-1]))==101)
 		   {
-		     break; 
+		     break;
 		     exit(0);
 		   }
 	      }
@@ -457,6 +475,7 @@ int main(int argc, char *argv[])
 
 			  if (!WIFEXITED(x) || WEXITSTATUS(x) != 101) {
 			    exit(0);
+			
 			  }
 			}
 		      }
