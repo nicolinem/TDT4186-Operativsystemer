@@ -57,31 +57,6 @@ int findSymbol(char **argv, char *sym)
     return -1; // nothing was found
 }
 
-int checkRedirectionIO(char *command)
-{
-    char *out = strstr(command, ">");
-    char *in = strstr(command, "<");
-
-    if ((out != NULL) && (in != NULL))
-    {
-        // both inut and output redirection
-        return 3;
-    }
-    else if (out != NULL)
-    {
-        // output redirection only
-        return 2;
-    }
-    else if (in != NULL)
-    {
-        // input redirection only
-        return 1;
-    }
-    else
-    {
-        return -1;
-    }
-}
 
 int execute()
 {
