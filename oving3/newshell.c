@@ -10,14 +10,11 @@
 #define MAX_BUF 500
 #endif
 
-int batchMode = 0;
-int breakString(char *str);
-char path[MAX_BUF];
 char *input = NULL;
 size_t input_buffer_size = 0;
 int StdIn, StdOut = -1;
 
-/* Declaration for parseString() */
+/* Declaration for tokenize_string() */
 int i;
 char *token;
 char *array[512];
