@@ -32,18 +32,18 @@ char **user_command = array;
 struct task *head = NULL;
 struct task *tail = NULL;
 
-void resetIO();
-void resetStdIO();
+void reset_IO();
+void reset_std_IO();
 void tokenize_string(char *input);
-int findSymbol(char **argv, char *sym);
+int find_char(char **argv, char *sym);
 int execute();
-int changeDirectory();
-int redirect(char *redirectTo, int type);
+int change_directory();
+int redirect(char *redirect_target, int mode);
 int find_redir_index(char **command, int type);
 char **handle_redir(char **cmd);
-void check_nodes();
-void check_status(int status, char *input);
-void remove_task(struct task *remove);
+void check_tasks();
+void check_task_status(int status, char *input);
+void remove_task(struct task *task);
 void add_task(int pid, char *cmd);
 int is_background(char **args);
 void print_nodes();
@@ -57,17 +57,18 @@ int main()
     while (1)
     {
 
-        check_nodes();
+        check_tasks();
 
         if (getcwd(cwd, sizeof(cwd)) == NULL)
         {
             perror("getcwd() error\n");
         }
 
-        printf("%s:", cwd);
+        printf("%s: ", cwd);
 
         /* Get user command input */
         getline(&input, &input_buffer_size, stdin);
+
 
         /* Check if input is empty */
         if (strcmp(input, "\n") == 0)
@@ -86,7 +87,7 @@ int main()
 
         if (strcmp(array[0], "cd") == 0)
         {
-            changeDirectory();
+            change_directory();
         }
         if (strcmp(array[0], "jobs") == 0)
         {
@@ -96,25 +97,27 @@ int main()
         {
             execute();
         }
-        resetStdIO();
+        reset_std_IO();
     }
 }
 
-void resetIO(int fd, int type)
-{
-    int a = dup2(fd, type);
-}
-
-void resetStdIO()
+/**
+ * Resets to standard input and output, used after redirecting IO
+ */
+void reset_std_IO()
 {
     if (StdIn != -1)
-        resetIO(StdIn, 0);
+        dup2(StdIn, 0);
+
     if (StdOut != -1)
-        resetIO(StdOut, 1);
+        dup2(StdOut, 1);
     StdIn = -1;
     StdOut = -1;
 }
 
+/**
+ * Splits user input into tokens so command can be parsed
+ */
 void tokenize_string(char *input)
 {
     i = 0;
@@ -127,69 +130,81 @@ void tokenize_string(char *input)
     array[i] = NULL;
 }
 
-int findSymbol(char **argv, char *sym)
+/**
+ * @brief used to locate symbol
+ * @param aargv string to search
+ * @param sym symbol to be located
+ * @returns index of symbol, -1 if not found
+ */
+int find_char(char **argv, char *sym)
 {
     int pos;
-    // return pos of symbol to caller
     for (pos = 0; argv[pos] != NULL; pos++)
         if (strcmp(argv[pos], sym) == 0)
             return pos;
-    return -1; // nothing was found
+    return -1;
 }
 
+/**
+ * @brief creates task struct and adds to linked list of backround tasks
+ * @param pid id of child process
+ * @param cmd command from user input
+ */
 void add_task(int pid, char *cmd)
 {
     struct task *new_task = (struct task *)malloc(sizeof(struct task));
-    printf("Adding new background task: %d\n", pid);
-    /* update values */
     new_task->pid = pid;
     strcpy(new_task->cmd, cmd);
 
-    /* update next pointer */
+    /* set next pointer */
     new_task->next = NULL;
     if (head == NULL)
     {
         head = new_task;
     }
 
-    /* update previous pointer */
+    /* set prev pointer */
     new_task->prev = tail;
     if (tail != NULL)
         tail->next = new_task;
     tail = new_task;
 }
 
-void remove_task(struct task *remove)
+/**
+ * @brief removes task from linked list, used after checking if backround process is completed
+ * @param task task to remove
+ */
+void remove_task(struct task *task)
 {
     // printf("Removing task from linked list\n");
-    /* checks if first node */
-    if (remove->prev != NULL)
+    /* check for first node */
+    if (task->prev != NULL)
     {
-        remove->prev->next = remove->next;
+        task->prev->next = task->next;
     }
     else
     {
-        head = remove->next;
+        head = task->next;
     }
 
-    /* checks if last node */
-    if (remove->next != NULL)
+    /* check for last node */
+    if (task->next != NULL)
     {
-        remove->next->prev = remove->prev;
+        task->next->prev = task->prev;
     }
     else
     {
-        tail = remove->prev;
+        tail = task->prev;
     }
-    free(remove);
+    free(task);
 }
 
 /**
- * @brief Checks the status of the exited task and prints it.
+ * @brief prints status of exited task
  * @param status int from waitpid
- * @param input the task that has been executed.
+ * @param input executed task
  */
-void check_status(int status, char *input)
+void check_task_status(int status, char *input)
 {
     // printf("Checking input status \n");
     /* removes newline from input string */
@@ -197,78 +212,53 @@ void check_status(int status, char *input)
 
     if (WIFEXITED(status))
     {
-        int es = WEXITSTATUS(status);
-        printf("Exit status [%s] = %d\n", input, es);
+        int exit_status = WEXITSTATUS(status);
+        printf("Exit status for task: |%s| = %d\n", input, exit_status);
     }
 }
 
-void check_nodes()
+/**
+ * @brief checks if backround processes has completed
+ */
+void check_tasks()
 {
-    struct task *ptr = head;
-    while (ptr != NULL)
+    struct task *t = head;
+    while (t != NULL)
     {
         int status;
 
-        /* checks if processes are complete */
-        if (waitpid(ptr->pid, &status, WNOHANG))
+        if (waitpid(t->pid, &status, WNOHANG))
         {
-            check_status(status, ptr->cmd);
+            check_task_status(status, t->cmd);
 
-            remove_task(ptr);
+            remove_task(t);
         }
-        ptr = ptr->next;
+        t = t->next;
     }
 }
 
-// int check_if_background_task(char input[MAX_LIMIT])
-// {
-//     /* removes newline from input string */
-//     input[strcspn(input, "\n")] = 0;
-//     int length = strlen(input) - 1;
-
-//     /* checks for '&' and removes it from string */
-//     int check = input[length] == '&';
-//     if ((length > 0) && (input[length] == '&'))
-//     {
-//         input[length] = '\0';
-//         length--;
-//     }
-
-//     /* removes trailing whitespaces after removing '&' */
-//     while (length > -1)
-//     {
-//         if (input[length] == ' ' || input[length] == '\t')
-//             length--;
-//         else
-//             break;
-//         input[length + 1] = '\0';
-//     }
-
-//     return check;
-// }
-
+/**
+ * @brief executes commands in child processes
+ * Checks if tasks is backround task, if so does not wait for process to complete before new prompt
+ */
 int execute()
 {
-    // printf("Executing command");
-    int background;
+    int background = is_background(user_command);
 
-    background = is_background(user_command);
-    // printf("Cmd %s\n", array[0]);
-
-    pid_t pid = fork(); // Create a new process
+    pid_t pid = fork();
 
     if (pid == 0)
-    { // If not successfully completed
+    {
         if (execvp(array[0], array) == -1)
-        {                            // If returned -1 => something went wrong! If not then command successfully completed */
-            perror("Wrong command"); // Display error message
+        { // If returned -1 => something went wrong! If not then command successfully completed */
+            perror("Wrong command");
             exit(errno);
         }
     }
     else
     {
+        reset_std_IO();
 
-        resetStdIO();
         if (background)
         {
             add_task(pid, input);
@@ -292,16 +282,17 @@ int execute()
     }
 }
 
-int changeDirectory()
+/**
+ * @brief Internal command for changing directory
+ * If no path is specifies we direct to HOME directory
+ * */
+int change_directory()
 {
-    // If we write no path (only 'cd'), then go to the home directory
     if (array[1] == NULL)
     {
         chdir(getenv("HOME"));
         return 1;
     }
-    // Else we change the directory to the one specified by the
-    // argument, if possible
     else
     {
         if (chdir(array[1]) == -1)
@@ -314,8 +305,8 @@ int changeDirectory()
 }
 
 /**
- * @brief Prints all nodes in the linked list,
- * is called by the prompt "jobs"
+ * @brief Prints all tasks in list,
+ * displays background tasks with prompt "jobs"
  */
 void print_nodes()
 {
@@ -327,53 +318,13 @@ void print_nodes()
     }
 }
 
-int redirect(char *redirectTo, int type)
-{
-    int fd;
-    int fdToReplace;
-    if (type == 0)
-    {
-        fd = open(redirectTo, O_CREAT | O_RDWR, 0644);
-        fdToReplace = 0;
-    }
-    else
-    {
-        fd = open(redirectTo, O_CREAT | O_RDWR, 0644);
-        fdToReplace = 1;
-    }
-    int ret = dup(fdToReplace);
-    dup2(fd, fdToReplace);
-    return ret;
-}
-
+/**
+ * @brief checks if user input contains "&"
+ * @param aargs input to be checked
+ * @returns true if user input contains "&"
+ */
 int is_background(char **args)
 {
-    // /* removes newline from input string */
-    // input[strcspn(input, "\n")] = 0;
-    // int length = strlen(input) - 1;
-
-    // /* checks for '&' and removes it from string */
-    // int check = input[length] == '&';
-    // if ((length > 0) && (input[length] == '&'))
-    // {
-    //     printf("found &");
-    //     input[length] = '\0';
-    //     length--;
-    // }
-    // printf("found no&");
-
-    // /* removes trailing whitespaces after removing '&' */
-    // while (length > -1)
-    // {
-    //     if (input[length] == ' ' || input[length] == '\t')
-    //         length--;
-    //     else
-    //         break;
-    //     input[length + 1] = '\0';
-    // }
-
-    // return check;
-
     // Current position in array
     int last_arg = 0;
 
@@ -404,7 +355,28 @@ int is_background(char **args)
     return 0;
 }
 
-/* Finds and returns the index of "<" and ">" in the command prompt */
+/**
+ * @brief redirects IO
+ * @param redirect_target target for new IO source
+ * @param mode if 0
+ */
+int redirect(char *redirect_target, int mode)
+{
+    int old_fd;
+
+    int fd = open(redirect_target, O_CREAT | O_RDWR, 0644);
+
+    int copy_mode = dup(mode);
+    dup2(fd, mode);
+    return copy_mode;
+}
+
+/**
+ * @brief Finds and returns the index of "<" and ">" in the command prompt
+ * @param command input to be checked
+ * @param type decide if we are searching for "<" or ">"
+ * @returns index of redir symbol, -1 if not found
+ */
 int find_redir_index(char **command, int type)
 {
     char sign[2];
@@ -423,7 +395,11 @@ int find_redir_index(char **command, int type)
     return -1;
 }
 
-/* Set stdin and stout if user specifies, and returns command without  "<" and ">" */
+/**
+ * @brief Redirect stdin and stout if user specifies, and returns command without  "<" and ">"
+ * @param cmd user input to be checked for redirection
+ * @returns user input but with "<" and ">" removed if found
+ */
 char **handle_redir(char **cmd)
 {
     int redirInput = find_redir_index(cmd, 0);  // index of the input
