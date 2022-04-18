@@ -21,7 +21,6 @@ struct task
 char *input = NULL;
 size_t input_buffer_size = 0;
 int StdIn, StdOut = -1;
-// int background;
 
 /* Declaration for tokenize_string() */
 int i;
@@ -47,7 +46,6 @@ void remove_task(struct task *task);
 void add_task(int pid, char *cmd);
 int is_background(char **args);
 void print_nodes();
-// int check_if_background_task(char input[MAX_BUF]);
 
 int main()
 {
@@ -79,14 +77,9 @@ int main()
 
         tokenize_string(input);
 
-        // background = is_background(input);
-
-        // printf("Background: %d\n", background);
-
         user_command = handle_redir(user_command);
-        // If user presses ctrl-d and thus no inputs are given.
+        /* User presses ctrl-d */
         if (array[0] == NULL) {
-            
             printf("Exiting program \n");
             return 0;
         }
@@ -182,7 +175,6 @@ void add_task(int pid, char *cmd)
  */
 void remove_task(struct task *task)
 {
-    // printf("Removing task from linked list\n");
     /* check for first node */
     if (task->prev != NULL)
     {
@@ -212,7 +204,6 @@ void remove_task(struct task *task)
  */
 void check_task_status(int status, char *input)
 {
-    // printf("Checking input status \n");
     /* removes newline from input string */
     input[strcspn(input, "\n")] = 0;
 
@@ -256,7 +247,7 @@ int execute()
     if (pid == 0)
     {
         if (execvp(array[0], array) == -1)
-        { // If returned -1 => something went wrong! If not then command successfully completed */
+        { /* If returned -1 => something went wrong! If not then command successfully completed */
             perror("Wrong command");
             exit(errno);
         }
@@ -334,29 +325,19 @@ int is_background(char **args)
     // Current position in array
     int last_arg = 0;
 
-    // printf("hello %s\n", *args);
-    // printf("%s", *args);
-    // printf("%s", **args);
-
     // Finding last arg in array
     while (args[last_arg + 1] != NULL)
     {
-        // printf("looking for &\n");
-        // printf("looking for %s\n", args[last_arg]);
         last_arg += 1;
     }
 
-    // Checking if task is background`
+    // Checking if task is background
     if (strcmp(args[last_arg], "&") == 0)
     {
         // Remove '&' token for future executing
         args[last_arg] = NULL;
-        // printf("yes we found an &\n");
-        // Return true
         return 1;
     }
-    // printf("no found an &\n");
-
     // Return false if: '&' wasn't founded
     return 0;
 }
@@ -409,7 +390,7 @@ int find_redir_index(char **command, int type)
 char **handle_redir(char **cmd)
 {
     int redirInput = find_redir_index(cmd, 0);  // index of the input
-    int redirOutput = find_redir_index(cmd, 1); // index of the outputr
+    int redirOutput = find_redir_index(cmd, 1); // index of the output
     if (redirInput != -1)
     {
         StdIn = redirect(cmd[redirInput + 1], 0);
