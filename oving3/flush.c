@@ -84,6 +84,12 @@ int main()
         // printf("Background: %d\n", background);
 
         user_command = handle_redir(user_command);
+        // If user presses ctrl-d and thus no inputs are given.
+        if (array[0] == NULL) {
+            
+            printf("Exiting program \n");
+            return 0;
+        }
 
         if (strcmp(array[0], "cd") == 0)
         {
